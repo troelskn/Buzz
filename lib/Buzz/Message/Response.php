@@ -7,6 +7,7 @@ class Response extends AbstractMessage
     private $protocolVersion;
     private $statusCode;
     private $reasonPhrase;
+    private $stats = array();
 
     /**
      * Returns the protocol version of the current response.
@@ -69,6 +70,26 @@ class Response extends AbstractMessage
         parent::addHeaders($headers);
 
         $this->resetStatusLine();
+    }
+
+    /**
+     * Sets timing info about the transfer
+     *
+     * @param Array $stats
+     */
+    public function setStats($stats)
+    {
+        $this->stats = $stats;
+    }
+
+    /**
+     * Returns timing info, if available
+     *
+     * @return Array
+     */
+    public function getStats()
+    {
+        return $this->stats;
     }
 
     /**

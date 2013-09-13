@@ -54,7 +54,15 @@ abstract class AbstractCurl extends AbstractClient
     protected static function populateResponse($curl, $raw, MessageInterface $response)
     {
         $pos = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-
+        $stats = array(
+          'total' => curl_getinfo($curl, CURLINFO_TOTAL_TIME),
+          'name_lookup' => curl_getinfo($curl, CURLINFO_NAMELOOKUP_TIME),
+          'connect' => curl_getinfo($curl, CURLINFO_CONNECT_TIME),
+          'pre_transfer' => curl_getinfo($curl, CURLINFO_PRETRANSFER_TIME),
+          'start_transfer' => curl_getinfo($curl, CURLINFO_STARTTRANSFER_TIME),
+          'redirect' => curl_getinfo($curl, CURLINFO_REDIRECT_TIME),
+        );
+        $response->setStats($stats);
         $response->setHeaders(static::getLastHeaders(rtrim(substr($raw, 0, $pos))));
         $response->setContent(substr($raw, $pos));
     }
