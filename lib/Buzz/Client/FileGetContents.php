@@ -58,7 +58,7 @@ class FileGetContents extends AbstractStream
         $currentRequest = $request;
         $allowedRedirects = $this->getMaxRedirects();
         while (true) {
-            if ($allowedRedirects == 0) {
+            if ($allowedRedirects == 0 && $this->getMaxRedirects() > 0) {
                 throw new ClientException("Max number of redirects exceeded");
             }
             $context = stream_context_create($this->getStreamContextArray($currentRequest, 1));
@@ -75,7 +75,7 @@ class FileGetContents extends AbstractStream
             if ($cookieJar) {
                 $cookieJar->processSetCookieHeaders($request, $tmp);
             }
-            if ($tmp->isRedirection()) {
+            if ($tmp->isRedirection() && $this->getMaxRedirects() > 0) {
                 $location = $tmp->getHeader('Location', "");
                 if (!$location) {
                     throw new ClientException("Redirect without a 'Location' header");
