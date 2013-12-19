@@ -200,13 +200,16 @@ abstract class AbstractCurl extends AbstractClient
                     if ($contentType = $value->getContentType()) {
                         $fields[$name] .= ';type='.$contentType;
                     }
+                    if (basename($file) != $value->getFilename()) {
+                        $fields[$name] .= ';filename='.$value->getFilename();
+                    }
                 } else {
                     return $request->getContent();
                 }
             }
         }
 
-        return $multipart ? $fields : http_build_query($fields);
+        return $multipart ? $fields : http_build_query($fields, '', '&');
     }
 
     /**
@@ -266,9 +269,11 @@ abstract class AbstractCurl extends AbstractClient
         if ($this->proxy) {
             curl_setopt($curl, CURLOPT_PROXY, $this->proxy);
         }
+        
+        $canFollow = !ini_get('safe_mode') && !ini_get('open_basedir');
 
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 0 < $this->getMaxRedirects());
-        curl_setopt($curl, CURLOPT_MAXREDIRS, $this->getMaxRedirects());
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $canFollow && $this->getMaxRedirects() > 0);
+        curl_setopt($curl, CURLOPT_MAXREDIRS, $canFollow ? $this->getMaxRedirects() : 0);
         curl_setopt($curl, CURLOPT_FAILONERROR, !$this->getIgnoreErrors());
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->getVerifyPeer());
 
