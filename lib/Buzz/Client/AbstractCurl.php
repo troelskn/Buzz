@@ -273,6 +273,7 @@ abstract class AbstractCurl extends AbstractClient
         $canFollow = !ini_get('safe_mode') && !ini_get('open_basedir');
 
         $maxRedirects = isset($options['max_redirects']) ? $options['max_redirects'] : $this->getMaxRedirects();
+	unset($options['max_redirects']);
 
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $canFollow && $maxRedirects > 0);
         curl_setopt($curl, CURLOPT_MAXREDIRS, $canFollow ? $maxRedirects : 0);
