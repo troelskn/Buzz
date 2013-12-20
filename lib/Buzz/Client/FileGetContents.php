@@ -47,7 +47,7 @@ class FileGetContents extends AbstractStream
      *
      * @throws ClientException If file_get_contents() fires an error
      */
-    public function send(RequestInterface $request, MessageInterface $response)
+    public function send(RequestInterface $request, MessageInterface $response, array $options = array())
     {
         if ($cookieJar = $this->getCookieJar()) {
             $cookieJar->clearExpiredCookies();
@@ -56,9 +56,10 @@ class FileGetContents extends AbstractStream
 
         $url = $request->getHost().$request->getResource();
         $currentRequest = $request;
-        $allowedRedirects = $this->getMaxRedirects();
+        $maxRedirects = isset($options['max_redirects']) ? $options['max_redirects'] : $this->getMaxRedirects();
+        $allowedRedirects = $maxRedirects;
         while (true) {
-            if ($allowedRedirects == 0 && $this->getMaxRedirects() > 0) {
+            if ($allowedRedirects == 0 && $maxRedirects > 0) {
                 throw new ClientException("Max number of redirects exceeded");
             }
             $context = stream_context_create($this->getStreamContextArray($currentRequest, 1));
