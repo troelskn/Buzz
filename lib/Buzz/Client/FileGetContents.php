@@ -76,7 +76,7 @@ class FileGetContents extends AbstractStream
             if ($cookieJar) {
                 $cookieJar->processSetCookieHeaders($request, $tmp);
             }
-            if ($tmp->isRedirection() && $this->getMaxRedirects() > 0) {
+            if ($tmp->isRedirection() && $maxRedirects > 0) {
                 $location = $tmp->getHeader('Location', "");
                 if (!$location) {
                     throw new ClientException("Redirect without a 'Location' header");
