@@ -142,7 +142,6 @@ abstract class AbstractCurl extends AbstractClient
     private static function setOptionsFromRequest($curl, RequestInterface $request)
     {
         $options = array(
-            CURLOPT_CUSTOMREQUEST => $request->getMethod(),
             CURLOPT_URL           => $request->getHost().$request->getResource(),
             CURLOPT_HTTPHEADER    => $request->getHeaders(),
         );
@@ -151,7 +150,7 @@ abstract class AbstractCurl extends AbstractClient
             $options[CURLOPT_PROXY] = $request->getProxy();
         }
 
-        switch ($request->getMethod()) {
+        switch ($method = $request->getMethod()) {
             case RequestInterface::METHOD_HEAD:
                 $options[CURLOPT_NOBODY] = true;
                 break;
@@ -161,11 +160,14 @@ abstract class AbstractCurl extends AbstractClient
                 break;
 
             case RequestInterface::METHOD_POST:
+                $options[CURLOPT_POST] = true;
             case RequestInterface::METHOD_PUT:
             case RequestInterface::METHOD_DELETE:
             case RequestInterface::METHOD_PATCH:
                 $options[CURLOPT_POSTFIELDS] = $fields = static::getPostFields($request);
-
+                if ($method == RequestInterface::METHOD_PATCH || $method = RequestInterface::METHOD_DELETE) {
+                  $options[CURLOPT_CUSTOMREQUEST] = $method;
+                }
                 // remove the content-type header
                 if (is_array($fields)) {
                     $options[CURLOPT_HTTPHEADER] = array_filter($options[CURLOPT_HTTPHEADER], function($header) {
